@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebAssembly Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 18px;
+        }
+        #status {
+            color: #666;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebAssembly Add Numbers Test</h1>
+    <div id="status">Initializing WebAssembly...</div>
+    <button id="addButton" onclick="testAdd()" disabled>Test Addition</button>
+    <div id="result"></div>
+
+    <script src="classes.wasm-runtime.js"></script>
+    <script src="index.js"></script>
+    <script>
+        // Wait for WebAssembly initialization
+        async function init() {
+            try {
+                await initWasm();
+                document.getElementById('status').textContent = 'WebAssembly initialized successfully!';
+                document.getElementById('addButton').disabled = false;
+            } catch (error) {
+                document.getElementById('status').textContent = 'Failed to initialize WebAssembly: ' + error.message;
+            }
+        }
+
+        async function testAdd() {
+            try {
+                if (typeof callWasmAdd !== 'function') {
+                    throw new Error('WebAssembly functions not yet initialized. Please wait a moment and try again.');
+                }
+                const result = callWasmAdd(15, 3);
+                document.getElementById('result').textContent = `Result of 5 + 3 = ${result}`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Initialize when the page loads
+        init();
+    </script>
+</body>
+</html> 
