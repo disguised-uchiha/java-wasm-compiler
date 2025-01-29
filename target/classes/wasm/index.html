@@ -34,13 +34,45 @@
             color: #666;
             margin-bottom: 10px;
         }
+        .input-group {
+            margin: 20px 0;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 100px;
+            margin-right: 10px;
+        }
+        .input-group input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100px;
+        }
+        .error {
+            color: #ff0000;
+            margin-top: 5px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <h1>WebAssembly Add Numbers Test</h1>
     <div id="status">Initializing WebAssembly...</div>
-    <button id="addButton" onclick="testAdd()" disabled>Test Addition</button>
+    
+    <div class="input-group">
+        <label for="number1">First Number:</label>
+        <input type="number" id="number1" value="0">
+    </div>
+    
+    <div class="input-group">
+        <label for="number2">Second Number:</label>
+        <input type="number" id="number2" value="0">
+    </div>
+    
+    <button id="addButton" onclick="testAdd()" disabled>Add Numbers</button>
     <div id="result"></div>
+    <div id="error" class="error"></div>
 
     <script src="classes.wasm-runtime.js"></script>
     <script src="index.js"></script>
@@ -61,16 +93,46 @@
                 if (typeof callWasmAdd !== 'function') {
                     throw new Error('WebAssembly functions not yet initialized. Please wait a moment and try again.');
                 }
-                const result = callWasmAdd(5, 3);
-                document.getElementById('result').textContent = `Result of 5 + 3 = ${result}`;
+
+                // Get input values
+                const num1 = parseInt(document.getElementById('number1').value) || 0;
+                const num2 = parseInt(document.getElementById('number2').value) || 0;
+
+                // Call WebAssembly function
+                const result = callWasmAdd(num1, num2);
+                
+                // Display result
+                document.getElementById('result').textContent = `Result of ${num1} + ${num2} = ${result}`;
+                document.getElementById('error').textContent = ''; // Clear any previous errors
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('result').textContent = `Error: ${error.message}`;
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+                document.getElementById('result').textContent = ''; // Clear the result
             }
         }
 
         // Initialize when the page loads
         init();
+
+        // Add event listeners for input validation
+        document.getElementById('number1').addEventListener('input', validateInput);
+        document.getElementById('number2').addEventListener('input', validateInput);
+
+        function validateInput(event) {
+            const input = event.target;
+            const value = input.value;
+            
+            // Allow empty input (will be treated as 0) or valid numbers
+            if (value === '' || !isNaN(value)) {
+                input.style.borderColor = '#ddd';
+                document.getElementById('error').textContent = '';
+                document.getElementById('addButton').disabled = false;
+            } else {
+                input.style.borderColor = '#ff0000';
+                document.getElementById('error').textContent = 'Please enter valid numbers';
+                document.getElementById('addButton').disabled = true;
+            }
+        }
     </script>
 </body>
 </html> 
